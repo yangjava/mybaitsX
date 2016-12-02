@@ -15,16 +15,17 @@
  */
 package com.mybatisX.spring;
 
-import com.mybatisX.annotations.FieldStrategy;
-import com.mybatisX.core.MybatisConfiguration;
-import com.mybatisX.core.MybatisPlusHolder;
-import com.mybatisX.core.MybatisXMLConfigBuilder;
-import com.mybatisX.core.MybatisXMLMapperBuilder;
-import com.mybatisX.exceptions.MybatisXException;
-import com.mybatisX.mapper.DBType;
-import com.mybatisX.mapper.IMetaObjectHandler;
-import com.mybatisX.mapper.ISqlInjector;
-import com.mybatisX.toolkit.PackageHelper;
+import static org.springframework.util.Assert.notNull;
+import static org.springframework.util.Assert.state;
+import static org.springframework.util.ObjectUtils.isEmpty;
+import static org.springframework.util.StringUtils.hasLength;
+import static org.springframework.util.StringUtils.tokenizeToStringArray;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.Properties;
+
+import javax.sql.DataSource;
 
 import org.apache.ibatis.cache.Cache;
 import org.apache.ibatis.executor.ErrorContext;
@@ -52,17 +53,16 @@ import org.springframework.core.NestedIOException;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;
 
-import javax.sql.DataSource;
-
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.Properties;
-
-import static org.springframework.util.Assert.notNull;
-import static org.springframework.util.Assert.state;
-import static org.springframework.util.ObjectUtils.isEmpty;
-import static org.springframework.util.StringUtils.hasLength;
-import static org.springframework.util.StringUtils.tokenizeToStringArray;
+import com.mybatisX.annotations.FieldStrategy;
+import com.mybatisX.core.MybatisConfiguration;
+import com.mybatisX.core.MybatisPlusHolder;
+import com.mybatisX.core.MybatisXMLConfigBuilder;
+import com.mybatisX.core.MybatisXMLMapperBuilder;
+import com.mybatisX.exceptions.MybatisXException;
+import com.mybatisX.mapper.DBType;
+import com.mybatisX.mapper.IMetaObjectHandler;
+import com.mybatisX.mapper.ISqlInjector;
+import com.mybatisX.toolkit.PackageHelper;
 
 /**
  * <p>
@@ -572,6 +572,10 @@ public class MybatisSqlSessionFactoryBean implements FactoryBean<SqlSessionFacto
 
 		configuration.setEnvironment(new Environment(this.environment, this.transactionFactory, this.dataSource));
 
+		SqlSessionFactory sqlSessionFactory = this.sqlSessionFactoryBuilder.build(configuration);
+		// TODO 缓存 sqlSessionFactory
+		MybatisPlusHolder.setSqlSessionFactory(sqlSessionFactory);
+
 		if (!isEmpty(this.mapperLocations)) {
 			for (Resource mapperLocation : this.mapperLocations) {
 				if (mapperLocation == null) {
@@ -583,6 +587,7 @@ public class MybatisSqlSessionFactoryBean implements FactoryBean<SqlSessionFacto
 					MybatisXMLMapperBuilder xmlMapperBuilder = new MybatisXMLMapperBuilder(mapperLocation.getInputStream(),
 							configuration, mapperLocation.toString(), configuration.getSqlFragments());
 					xmlMapperBuilder.parse();
+
 				} catch (Exception e) {
 					throw new NestedIOException("Failed to parse mapping resource: '" + mapperLocation + "'", e);
 				} finally {
@@ -598,9 +603,6 @@ public class MybatisSqlSessionFactoryBean implements FactoryBean<SqlSessionFacto
 				LOGGER.debug("Property 'mapperLocations' was not specified or no matching resources found");
 			}
 		}
-		SqlSessionFactory sqlSessionFactory = this.sqlSessionFactoryBuilder.build(configuration);
-		// TODO 缓存 sqlSessionFactory
-		MybatisPlusHolder.setSqlSessionFactory(sqlSessionFactory);
 		return sqlSessionFactory;
 	}
 

@@ -15,6 +15,8 @@
  */
 package com.mybatisX.toolkit;
 
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,18 +39,31 @@ public class StringUtils {
 	 * 空字符串
 	 */
 	public static final String EMPTY_STRING = "";
+	/**
+	 * 占位符
+	 */
+	public static final String PLACE_HOLDER = "{%s}";
 
 	/**
 	 * <p>
 	 * 判断字符串是否为空
 	 * </p>
 	 *
-	 * @param str
+	 * @param cs
 	 *            需要判断字符串
 	 * @return 判断结果
 	 */
-	public static boolean isEmpty(String str) {
-		return str == null || EMPTY_STRING.equals(str.trim());
+	public static boolean isEmpty(final CharSequence cs) {
+		int strLen;
+		if (cs == null || (strLen = cs.length()) == 0) {
+			return true;
+		}
+		for (int i = 0; i < strLen; i++) {
+			if (Character.isWhitespace(cs.charAt(i)) == false) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
@@ -56,12 +71,12 @@ public class StringUtils {
 	 * 判断字符串是否不为空
 	 * </p>
 	 *
-	 * @param str
+	 * @param cs
 	 *            需要判断字符串
 	 * @return 判断结果
 	 */
-	public static boolean isNotEmpty(String str) {
-		return !isEmpty(str);
+	public static boolean isNotEmpty(final CharSequence cs) {
+		return !isEmpty(cs);
 	}
 
 	/**
@@ -149,6 +164,48 @@ public class StringUtils {
 
 	/**
 	 * <p>
+	 * SQL 参数填充
+	 * </p>
+	 *
+	 * @param content
+	 *            填充内容
+	 * @param args
+	 *            填充参数
+	 * @return
+	 */
+	public static String sqlArgsFill(String content, Object... args) {
+		if (null == content) {
+			return null;
+		}
+		if (args != null) {
+			int length = args.length;
+			if (length >= 1) {
+				for (int i = 0; i < length; i++) {
+					content = content.replace(String.format(PLACE_HOLDER, i), sqlParam(args[i]));
+				}
+			}
+		}
+		return content;
+	}
+
+	/**
+	 * 获取SQL PARAMS字符串
+	 * 
+	 * @param obj
+	 * @return
+	 */
+	public static String sqlParam(Object obj) {
+		String repStr;
+		if (obj instanceof Collection) {
+			repStr = StringUtils.quotaMarkList((Collection<?>) obj);
+		} else {
+			repStr = StringUtils.quotaMark(obj);
+		}
+		return repStr;
+	}
+
+	/**
+	 * <p>
 	 * 使用单引号包含字符串
 	 * </p>
 	 *
@@ -163,6 +220,35 @@ public class StringUtils {
 			return StringEscape.escapeString(srcStr);
 		}
 		return srcStr;
+	}
+
+	/**
+	 * <p>
+	 * 使用单引号包含字符串
+	 * </p>
+	 *
+	 * @param coll
+	 *            集合
+	 * @return 单引号包含的原字符串的集合形式
+	 */
+	public static String quotaMarkList(Collection<?> coll) {
+		StringBuilder sqlBuild = new StringBuilder();
+		sqlBuild.append("(");
+		int _size = coll.size();
+		int i = 0;
+		Iterator<?> iterator = coll.iterator();
+		while (iterator.hasNext()) {
+			String tempVal = StringUtils.quotaMark(iterator.next());
+			if (i + 1 == _size) {
+				sqlBuild.append(tempVal);
+			} else {
+				sqlBuild.append(tempVal);
+				sqlBuild.append(",");
+			}
+			i++;
+		}
+		sqlBuild.append(")");
+		return sqlBuild.toString();
 	}
 
 	/**
@@ -202,6 +288,32 @@ public class StringUtils {
 	 */
 	public static String capitalize(final String str) {
 		return concatCapitalize(null, str);
+	}
+
+	/**
+	 * <p>
+	 * 判断对象是否为空
+	 * </p>
+	 *
+	 * @param object
+	 * @return
+	 */
+	public static boolean checkValNotNull(Object object) {
+		if (object instanceof CharSequence) {
+			return isNotEmpty((CharSequence) object);
+		}
+		return object == null ? false : true;
+	}
+	/**
+	 * <p>
+	 * 判断对象是否为空
+	 * </p>
+	 *
+	 * @param object
+	 * @return
+	 */
+	public static boolean checkValNull(Object object) {
+		return !checkValNotNull(object);
 	}
 
 }

@@ -56,9 +56,19 @@ public class TableFieldInfo {
 	 */
 	private FieldStrategy fieldStrategy = FieldStrategy.NOT_NULL;
 
-	public TableFieldInfo(boolean related, String column, String property, String el, FieldStrategy fieldStrategy) {
-		this.related = related;
-		this.setColumn(column);
+	public TableFieldInfo(String column, String property, String el, FieldStrategy fieldStrategy) {
+		if (MybatisConfiguration.DB_COLUMN_UNDERLINE) {
+			/* 开启字段下划线申明 */
+			this.related = true;
+			this.setColumn(StringUtils.camelToUnderline(column));
+		} else if (!column.equals(property)) {
+			/* 没有开启下划线申明 但是column与property不等的情况下设置related为true */
+			this.related = true;
+			this.setColumn(column);
+		} else {
+			this.related = false;
+			this.setColumn(column);
+		}
 		this.property = property;
 		this.el = el;
 		/*
@@ -71,17 +81,15 @@ public class TableFieldInfo {
 		}
 	}
 
-	public TableFieldInfo(boolean related, String column, String property) {
-		this.related = related;
-		this.setColumn(column);
-		this.property = property;
-		this.el = property;
-		this.fieldStrategy = MybatisConfiguration.FIELD_STRATEGY;
-	}
-
 	public TableFieldInfo(String column) {
-		this.related = false;
-		this.setColumn(column);
+		if (MybatisConfiguration.DB_COLUMN_UNDERLINE) {
+			/* 开启字段下划线申明 */
+			this.related = true;
+			this.setColumn(StringUtils.camelToUnderline(column));
+		} else {
+			this.related = false;
+			this.setColumn(column);
+		}
 		this.property = column;
 		this.el = column;
 		this.fieldStrategy = MybatisConfiguration.FIELD_STRATEGY;

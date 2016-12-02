@@ -13,18 +13,30 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.baomidou.mybatisplus.test.proxy.mapper;
+package com.mybatisX.test.ioc;
 
 /**
  * <p>
- * mybatis mapper 接口
+ * IOC 演示
  * </p>
  * 
  * @author hubin
  * @Date 2016-07-06
  */
-public interface IUserMapper {
+public class TestIoc {
 
-	User selectById(Long id);
-	
+	/**
+	 * IOC 控制反转, 依赖倒置
+	 */
+	public static void main( String[] args ) {
+		//new 一个三毛
+		Human sanMao = new Human("三毛");
+
+		//三毛试驾宝马X6
+		sanMao.driver(new Bmw());
+
+		//三毛试驾哈佛H9
+		sanMao.driver(new Haval());
+	}
+
 }

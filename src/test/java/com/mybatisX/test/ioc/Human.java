@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2020, hubin (jobob@qq.com).
+ * Copyright (c) 2011-2014, hubin (jobob@qq.com).
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -13,34 +13,32 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.baomidou.mybatisplus.test;
-
-import org.databene.contiperf.junit.ContiPerfRule;
-import org.junit.Rule;
+package com.mybatisX.test.ioc;
 
 /**
  * <p>
- * 并发测试
+ * 试驾人员
  * </p>
  * 
  * @author hubin
- * @date 2016-08-18
+ * @Date 2016-07-06
  */
-public class ContiPerfTest {
+public class Human {
 	
-	@Rule
-	public ContiPerfRule i = new ContiPerfRule();
+	private String name;
+	
+	public Human(String name){
+		this.name = name;
+	}
 
-	/**
-	 * samples: 200000000
-	 * max: 82
-	 * average: 0.0039698
-	 * median: 0
-	 */
-	/*@Test
-	@PerfTest(invocations = 200000000, threads = 16)
-	public void testIdWorker() throws Exception {
-		IdWorker.getId();
-	}*/
+	public void driver( ICar car ) {
+		System.out.println("\n" + name + " 开始！试驾... ");
+		if ( car.start() ) {
+			car.driver();
+			System.out.println(" 试驾结束！ ");
+		} else {
+			System.out.println(" 熄火！ ");
+		}
+	}
 
 }

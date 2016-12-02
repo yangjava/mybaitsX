@@ -20,7 +20,11 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
-import java.util.logging.Logger;
+
+import org.apache.ibatis.logging.Log;
+import org.apache.ibatis.logging.LogFactory;
+
+import com.mybatisX.annotations.FieldStrategy;
 
 /**
  * <p>
@@ -31,8 +35,7 @@ import java.util.logging.Logger;
  * @Date 2016-09-22
  */
 public class ReflectionKit {
-
-	protected static final Logger logger = Logger.getLogger("ReflectionKit");
+	private static final Log logger = LogFactory.getLog(ReflectionKit.class);
 
 	/**
 	 * <p>
@@ -63,11 +66,11 @@ public class ReflectionKit {
 			Method method = cls.getMethod(getMethodCapitalize(str));
 			obj = method.invoke(entity);
 		} catch (NoSuchMethodException e) {
-			logger.warning(String.format("Warn: No such method. in %s.  Cause:", cls.getSimpleName()) + e);
+			logger.warn(String.format("Warn: No such method. in %s.  Cause:", cls.getSimpleName()) + e);
 		} catch (IllegalAccessException e) {
-			logger.warning(String.format("Warn: Cannot execute a private method. in %s.  Cause:", cls.getSimpleName()) + e);
+			logger.warn(String.format("Warn: Cannot execute a private method. in %s.  Cause:", cls.getSimpleName()) + e);
 		} catch (InvocationTargetException e) {
-			logger.warning("Warn: Unexpected exception on getMethodValue.  Cause:" + e);
+			logger.warn("Warn: Unexpected exception on getMethodValue.  Cause:" + e);
 		}
 		return obj;
 	}
@@ -102,17 +105,26 @@ public class ReflectionKit {
 		Class<?> cls = bean.getClass();
 		TableInfo tableInfo = TableInfoHelper.getTableInfo(cls);
 		if (null == tableInfo) {
-			logger.warning("Warn: Could not find @TableId.");
+			logger.warn("Warn: Could not find @TableId.");
 			return false;
 		}
 		boolean result = false;
 		List<TableFieldInfo> fieldList = tableInfo.getFieldList();
 		for (TableFieldInfo tableFieldInfo : fieldList) {
+			FieldStrategy fieldStrategy = tableFieldInfo.getFieldStrategy();
 			Object val = getMethodValue(cls, bean, tableFieldInfo.getProperty());
-			if (null != val) {
-				result = true;
-				break;
+			if (FieldStrategy.NOT_EMPTY.equals(fieldStrategy)) {
+				if (StringUtils.checkValNotNull(val)) {
+					result = true;
+					break;
+				}
+			} else {
+				if (null != val) {
+					result = true;
+					break;
+				}
 			}
+
 		}
 		return result;
 	}
@@ -126,25 +138,25 @@ public class ReflectionKit {
 	 *            泛型所在位置
 	 * @return Class
 	 */
+	@SuppressWarnings("rawtypes")
 	public static Class getSuperClassGenricType(final Class clazz, final int index) {
 
 		Type genType = clazz.getGenericSuperclass();
 
 		if (!(genType instanceof ParameterizedType)) {
-			logger.warning(String.format("Warn: %s's superclass not ParameterizedType", clazz.getSimpleName()));
+			logger.warn(String.format("Warn: %s's superclass not ParameterizedType", clazz.getSimpleName()));
 			return Object.class;
 		}
 
 		Type[] params = ((ParameterizedType) genType).getActualTypeArguments();
 
 		if (index >= params.length || index < 0) {
-			logger.warning(String.format("Warn: Index: %s, Size of %s's Parameterized Type: %s .", index, clazz.getSimpleName(),
+			logger.warn(String.format("Warn: Index: %s, Size of %s's Parameterized Type: %s .", index, clazz.getSimpleName(),
 					params.length));
 			return Object.class;
 		}
 		if (!(params[index] instanceof Class)) {
-			logger.warning(String.format("Warn: %s not set the actual class on superclass generic parameter",
-					clazz.getSimpleName()));
+			logger.warn(String.format("Warn: %s not set the actual class on superclass generic parameter", clazz.getSimpleName()));
 			return Object.class;
 		}
 

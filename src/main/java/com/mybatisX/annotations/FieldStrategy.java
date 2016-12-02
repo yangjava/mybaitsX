@@ -1,3 +1,4 @@
+
 package com.mybatisX.annotations;
 
 /**
@@ -5,7 +6,8 @@ package com.mybatisX.annotations;
  * 字段策略枚举类
  * </p>
  * 
- * @author 杨京京
+ * @author hubin
+ * @Date 2016-09-09
  */
 public enum FieldStrategy {
 	IGNORED(0, "ignored"), NOT_NULL(1, "not null"), NOT_EMPTY(2, "not empty"), FILL(3, "field fill");

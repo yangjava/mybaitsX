@@ -48,7 +48,7 @@
     </typeAliases>
      | -->
     <typeAliases>
-        <package name="com.baomidou.mybatisplus.test.mysql.entity" />
+        <package name="com.mybatisX.test.mysql.entity" />
     </typeAliases>
     
     <!-- 插件配置 -->
@@ -61,17 +61,17 @@
 	     | dialectClazz 方言实现类
 	     |              自定义需要实现 com.baomidou.mybatisplus.plugins.pagination.IDialect 接口
 	     | -->
-        <plugin interceptor="com.java.pageX.PaginationInterceptor">
+        <plugin interceptor="com.mybatisX.plugins.PaginationInterceptor">
             <property name="dialectType" value="mysql" />
         </plugin>
         <!-- SQL 执行性能分析，开发环境使用，线上不推荐。 maxTime 指的是 sql 最大执行时长 -->
-<!--         <plugin interceptor="com.mybatisX.plugins.PerformanceInterceptor">
+        <plugin interceptor="com.mybatisX.plugins.PerformanceInterceptor">
             <property name="maxTime" value="100" />
-        </plugin> -->
+        </plugin>
          <!-- SQL 执行分析拦截器 stopProceed 发现全表执行 delete update 是否停止运行 -->
-<!--         <plugin interceptor="com.mybatisX.plugins.SqlExplainInterceptor">
+        <!--<plugin interceptor="com.baomidou.mybatisplus.plugins.SqlExplainInterceptor">
             <property name="stopProceed" value="false" />
-        </plugin> -->
+        </plugin>-->
     </plugins>
 
 	<!-- 环境配置 -->
@@ -105,10 +105,10 @@
      | package  指向可以找到Mapper接口的包名
      | -->
     <mappers>
-        <mapper resource="mysql/RoleMapper.xml"/>
-        <mapper class="com.baomidou.mybatisplus.test.mysql.UserMapper" />
-        <mapper resource="mysql/UserMapper.xml"/>
-        <mapper class="com.baomidou.mybatisplus.test.mysql.RoleMapper" />
-        <mapper class="com.baomidou.mybatisplus.test.mysql.TestMapper" />
+         <mapper resource="mysql/RoleMapper.xml"/>
+        <mapper class="com.mybatisX.test.mysql.UserMapper" /> 
+       <mapper resource="mysql/UserMapper.xml"/> 
+        <mapper class="com.mybatisX.test.mysql.RoleMapper" /> 
+      <!-- <mapper class="com.mybatisX.test.mysql.TestMapper" />  -->
     </mappers>
 </configuration>
